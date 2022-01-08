@@ -1,0 +1,166 @@
+# -*- sh -*-
+
+printf "Initializing lb\n"
+
+function yline() {
+  [ $1 ] && ht=$1 || ht=1;
+  printf "\e]1337;File=name=eWVsbG93;size=113;inline=1;width=100%%;height=%dpx;preserveAspectRatio=no:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX//wCKxvRFAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==\a\n" "$ht"
+}
+
+function rline() {
+  [ $1 ] && ht=$1 || ht=1;
+  printf "\e]1337;File=name=cmVk;size=113;inline=1;width=100%%;height=%dpx;preserveAspectRatio=no:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/AAAZ4gk3AAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==\a\n" "$ht"
+  }
+
+function cline {
+  [ $1 ] && ht=$1 || ht=1;
+  printf "\e]1337;File=name=Y3lhbg==;size=113;inline=1;width=100%%;height=%dpx;preserveAspectRatio=no:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUA//8ZXC8lAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==\a\n" "$ht"
+}
+
+function lb__l {
+  type els > /dev/null
+  [[ $? == 1 ]] && /bin/ls -l $* || els +T^NY-M-DT +G~Atp~ugsmnL $*  # l
+}
+function lb_ls {
+  type els > /dev/null
+  [[ $? == 1 ]] && /bin/ls $*    || els +T^NY-M-DT +G~At~smn $*      # ll
+}
+
+function lb_hl {                   # hl -I -g $cmd
+  while read -r line; do
+    GREP_COLOR="07;32" egrep --color=always "$1|\$" <<< "$line"
+  done
+}
+
+function lb_ccol {                 # ccol -y 4 -g -s 6 20
+  local ccols=( 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 )
+  local cmd
+
+  on="[01;33m"                   # yellow bold
+  off="[m"
+  cmd="sed 's/[^[:blank:]]\{1,\}/${on}&${off}/4; "    # set first cmd
+
+  on="[01;32m"                   # green bold
+
+  for col in $ccols; do
+    cmd="$cmd s/[^[:blank:]]\{1,\}/${on}&${off}/$col;"
+  done
+  cmd="$cmd '"
+
+  while read -r line; do
+    echo "$line" | ( eval $cmd )
+  done
+}
+
+function lb_prism {                # prism -F:;
+  local cmd
+
+  on="[38;2;255;000;090m"        # red normal
+  off="[m"
+
+  cmd="sed 's/[^:]\{1,\}/${on}&${off}/1;"             # set first cmd
+
+  on="[01;31m"                   # red bold
+
+  cmd="$cmd s/[^:]\{1,\}/${on}&${off}/2 '"
+
+  while read -r line; do
+    echo "$line" | ( eval $cmd )
+  done
+
+}
+
+function lb_exe {
+  local l_cmd cmd txt flg
+  if (( lb_long )); then
+    l_cmd=lb__l
+  else
+    l_cmd=lb_ls
+  fi
+
+  cmd=$( \which $1 )
+  flg=$2
+
+  if [[ $flg == 1 ]]; then           # executable
+    if (( lb_verb )) || (( lb_file )); then
+      txt=$( file $cmd )
+      printf "%s\n" $txt | lb_prism
+    fi
+  fi
+
+# This 'if' avoids running els on shell functions
+  n=$(wc -l <<< $cmd );
+  if [[ $n == 1 ]]; then
+    $l_cmd $(\which -a $1 | egrep -v "alias|shell") | lb_hl $cmd
+  fi
+
+  if (( lb_verb )); then
+    echo $txt | grep -q text;
+    if ! (( $? )); then
+      cline 5
+      $cat $cmd
+      cline 5
+    fi
+  fi
+}
+
+function lb_help {
+  printf "%s -%s CMD [CMD]\n\n" $0 $myopts
+  printf "Find location of executable, function, or alias\n";
+  printf "  -C: colorize source\n"
+  printf "  -f: show 'file' output for executables\n"
+  printf "  -l: long ls output\n";
+  printf "  -v: show script and function source\n"
+  printf "\n";
+}
+
+function lb {
+  local cat=cat;
+  local lb_file=0;
+  local lb_long=0;
+  local lb_verb=0;
+
+  local myopts="Cflvh"
+  while getopts $myopts opt; do
+    case $opt in
+      C) cat=colorize_cat;;
+      f) lb_file=1;;
+      l) lb_long=1;;
+      v) lb_verb=1;;
+      ?) lb_help;
+         ;;
+    esac
+  done
+  shift $((OPTIND -1))
+
+  while test "$#" -gt 0; do
+    cmd="$1"; shift;
+    x=$( whence -v $cmd )
+    a=("${(@s/ /)x}")
+    c=$( which -a $cmd | wc -l )
+
+    if [[ $a[2] == "not" ]]; then
+      printf "%s\n" $x
+    elif [[ $#a -eq 3 ]]; then           # executable
+      lb_exe $cmd 1
+    else                                 # alias or shell function
+      printf "%s\n" $x | lb_ccol
+
+      if [[ $a[4] == "shell" ]]; then
+        if (( lb_verb )); then
+          printf "\n"
+          yline 5
+          which $cmd | $cat --
+          printf "\n"
+          rline 5
+        fi
+      fi
+      if [[ $c -gt 1                     ]] lb_exe $cmd 0
+    fi
+    if [[ $# -gt 0 ]]; then
+      printf "\n"
+    fi
+  done
+}
+
+lb $*
