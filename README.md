@@ -1,8 +1,14 @@
-lb: Robust 'which' replacement combining output from other
+# lb: zsh addon
+
+## About
+Robust 'which' replacement combining output from other
 standard commands to show more info about the program, function
 or alias.
 Source for scripts and functions can be optionally displayed
 
+This is my first contribution of personal code.
+
+## Usage
 Output from 'lb -h'
 
 Find location of executable, function, or alias
@@ -10,3 +16,6 @@ Find location of executable, function, or alias
   -f: show 'file' output for executables
   -l: long ls output
   -v: show script and function source
+
+## Installation
+Copy or ln 'lb' to your local place for loading autoload zsh tools
