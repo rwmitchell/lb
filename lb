@@ -90,7 +90,8 @@ function lb_exe {
     l_cmd=lb_ls
   fi
 
-  cmd=$( \which $1 )
+
+  cmd=$( type $1 )
   flg=$2
 
   if [[ $flg == 1 ]]; then           # executable
@@ -100,11 +101,7 @@ function lb_exe {
     fi
   fi
 
-# This 'if' avoids running els on shell functions
-  n=$(wc -l <<< $cmd );
-  if [[ $n == 1 ]]; then
-    $l_cmd $(\which -a $1 | egrep -v "alias|shell") | lb_hl $cmd
-  fi
+  $l_cmd $(\type -a $1 | egrep -v "alias|shell" | sed 's/^.* \([^ ][^ ]\)/\1/g') | lb_hl $cmd
 
   if (( lb_verb )); then
     echo $txt | grep -q text;
@@ -149,7 +146,7 @@ function lb {
     cmd="$1"; shift;
     x=$( whence -v $cmd )
     a=("${(@s/ /)x}")
-    c=$( which -a $cmd | wc -l )
+    c=$( type -a $cmd | wc -l )
 
     if [[ $a[2] == "not" ]]; then
       printf "%s\n" $x
@@ -167,7 +164,7 @@ function lb {
           __lb_rline 5
         fi
       fi
-      if [[ $c -gt 1                     ]] lb_exe $cmd 0
+      if [[ $c -gt 1 ]] lb_exe $cmd 0
     fi
     if [[ $# -gt 0 ]]; then
       printf "\n"
