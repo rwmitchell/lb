@@ -5,26 +5,26 @@ printf "Initializing lb\n"
 if [[ $TERM_PROGRAM == *iTerm* ]]; then
 
   # Argument to line functions specifies line thickness
-  function lb_yline() {
+  function __lb_yline() {
     [ $1 ] && ht=$1 || ht=1;
     printf "\e]1337;File=name=eWVsbG93;size=113;inline=1;width=100%%;height=%dpx;preserveAspectRatio=no:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX//wCKxvRFAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==\a\n" "$ht"
   }
 
-  function lb_rline() {
+  function __lb_rline() {
     [ $1 ] && ht=$1 || ht=1;
     printf "\e]1337;File=name=cmVk;size=113;inline=1;width=100%%;height=%dpx;preserveAspectRatio=no:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/AAAZ4gk3AAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==\a\n" "$ht"
     }
 
-  function lb_cline {
+  function __lb_cline {
     [ $1 ] && ht=$1 || ht=1;
     printf "\e]1337;File=name=Y3lhbg==;size=113;inline=1;width=100%%;height=%dpx;preserveAspectRatio=no:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUA//8ZXC8lAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==\a\n" "$ht"
   }
 
 else
   # Argument is ignored as a repeating number is ugly
-  function lb_yline () { local S='-'; printf -v _hr "[1;33m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
-  function lb_rline () { local S='-'; printf -v _hr "[1;31m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
-  function lb_cline () { local S='-'; printf -v _hr "[1;36m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
+  function __lb_yline () { local S='-'; printf -v _hr "[1;33m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
+  function __lb_rline () { local S='-'; printf -v _hr "[1;31m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
+  function __lb_cline () { local S='-'; printf -v _hr "[1;36m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
 fi
 
 function lb__l {
@@ -107,9 +107,9 @@ function lb_exe {
   if (( lb_verb )); then
     echo $txt | grep -q text;
     if ! (( $? )); then
-      lb_cline 5
+      __lb_cline 5
       $cat $cmd
-      lb_cline 5
+      __lb_cline 5
     fi
   fi
 }
@@ -159,10 +159,10 @@ function lb {
       if [[ $a[4] == "shell" ]]; then
         if (( lb_verb )); then
           printf "\n"
-          lb_yline 5
+          __lb_yline 5
           which $cmd | $cat --
           printf "\n"
-          lb_rline 5
+          __lb_rline 5
         fi
       fi
       if [[ $c -gt 1                     ]] lb_exe $cmd 0
