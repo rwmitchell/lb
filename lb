@@ -2,6 +2,8 @@
 
 printf "Initializing lb\n"
 
+compdef lb=which
+
 if [[ $TERM_PROGRAM == *iTerm* ]]; then
 
   # Argument to line functions specifies line thickness
