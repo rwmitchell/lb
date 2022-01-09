@@ -19,5 +19,12 @@ Find location of executable, function, or alias
 	-l: long ls output
 	-v: show script and function source
 
+## Requirements
+
+The '-C' option uses 'colorize_cat' from the 'colorize' plugin found in OMZ.
+
+Additional information about the type of file is displayed using the unix
+'file' command and assumed to be present.
+
 ## Installation
 Copy or ln 'lb' to your location for loading autoload zsh tools.
