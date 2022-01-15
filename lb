@@ -101,7 +101,10 @@ function lb_exe {
     fi
   fi
 
-  $l_cmd $(\type -a $1 | egrep -v "alias|shell" | sed 's/^.* \([^ ][^ ]\)/\1/g') | lb_hl $cmd
+  a_cmd=$(type $1 | egrep -v "alias |shell " | sed 's/^.* \([^ ][^ ]\)/\1/g')
+  [[ $a_cmd == "" ]] && a_cmd=$cmd && printf "\n"
+
+  $l_cmd $(\type -a $1 | egrep -v "alias|shell" | sed 's/^.* \([^ ][^ ]\)/\1/g') | lb_hl $a_cmd
 
   if (( lb_verb )); then
     echo $txt | grep -q text;
