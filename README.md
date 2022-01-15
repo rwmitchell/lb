@@ -18,6 +18,15 @@ Find location of executable, function, or alias
 	-f: show 'file' output for executables
 	-l: long ls output
 	-v: show script and function source
+	
+## Examples:
+![lb-ls](img/lb-ls.png)
+
+Primary is a zsh function, but other executables exist
+
+![lb-prog](img/lb-prog.png)
+
+Program exist in multiple paths, primary is highlighted
 
 ## Requirements
 
