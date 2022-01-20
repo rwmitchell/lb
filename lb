@@ -94,15 +94,15 @@ function lb_exe {
   cmd=$( type $1 )
   flg=$2
 
+  a_cmd=$(type $1 | egrep -v "alias |shell " | sed 's/^.* \([^ ][^ ]\)/\1/g')
+  [[ $a_cmd == "" ]] && a_cmd=$cmd && printf "\n"
+
   if [[ $flg == 1 ]]; then           # executable
     if (( lb_verb )) || (( lb_file )); then
-      txt=$( file $cmd )
+      txt=$( file $a_cmd )
       printf "%s\n" $txt | lb_prism
     fi
   fi
-
-  a_cmd=$(type $1 | egrep -v "alias |shell " | sed 's/^.* \([^ ][^ ]\)/\1/g')
-  [[ $a_cmd == "" ]] && a_cmd=$cmd && printf "\n"
 
   $l_cmd $(\type -a $1 | egrep -v "alias|shell" | sed 's/^.* \([^ ][^ ]\)/\1/g') | lb_hl $a_cmd
 
@@ -110,7 +110,7 @@ function lb_exe {
     echo $txt | grep -q text;
     if ! (( $? )); then
       __lb_cline 5
-      $cat $cmd
+      $cat $a_cmd
       __lb_cline 5
     fi
   fi
