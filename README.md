@@ -18,7 +18,7 @@ Find location of executable, function, or alias
 	-f: show 'file' output for executables
 	-l: long ls output
 	-v: show script and function source
-	
+
 ## Examples:
 ![lb-ls](img/lb-ls.png)
 

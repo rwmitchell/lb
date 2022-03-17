@@ -1,6 +1,7 @@
 # -*- sh -*-
 
-printf "Initializing lb\n"
+# 2022-03-16 change from autoload to plugin
+# printf "Initializing lb\n"
 
 compdef lb=which
 
