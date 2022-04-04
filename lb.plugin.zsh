@@ -30,6 +30,16 @@ else
   function __lb_cline () { local S='-'; printf -v _hr "[1;36m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
 fi
 
+function _lb_ident () {
+  local cmd pad
+
+  for cmd in $@; do
+    printf "%b%s\n" $pad "$cmd"
+    strings $cmd | command egrep '^\$.*\$$|^@\(#\)' | sed 's/^/\t/'
+    pad="\n"
+  done
+}
+
 function lb__l {
   type els > /dev/null
   [[ $? == 1 ]] && /bin/ls -l $* || els +T^NY-M-DT +G~Atp~ugsmnL $*  # l
@@ -40,8 +50,8 @@ function lb_ls {
 }
 
 function lb_hl {                   # hl -I -g $cmd
-  while read -r line; do
-    GREP_COLOR="07;32" egrep --color=always "$1|\$" <<< "$line"
+  while IFS= read -r; do
+    GREP_COLOR="07;32" egrep --color=always "$1|\$" <<< "$REPLY"
   done
 }
 
@@ -115,6 +125,12 @@ function lb_exe {
       __lb_cline 5
     fi
   fi
+
+  if (( lb_ident )); then
+    __lb_yline 2
+    _lb_ident $(\type -a $1 | egrep -v "alias|shell" | sed 's/^.* \([^ ][^ ]\)/\1/g') | lb_hl $a_cmd
+    __lb_yline 2
+  fi
 }
 
 function lb_help {
@@ -122,6 +138,7 @@ function lb_help {
   printf "Find location of executable, function, or alias\n";
   printf "  -C: colorize source\n"
   printf "  -f: show 'file' output for executables\n"
+  printf "  -i: show 'ident' information\n"
   printf "  -l: long ls output\n";
   printf "  -v: show script and function source\n"
   printf "\n";
@@ -132,12 +149,14 @@ function lb {
   local lb_file=0;
   local lb_long=0;
   local lb_verb=0;
+  local lb_ident=0;
 
-  local myopts="Cflvh"
+  local myopts="Cfilvh"
   while getopts $myopts opt; do
     case $opt in
       C) cat=colorize_cat;;
       f) lb_file=1;;
+      i) lb_ident=1;;
       l) lb_long=1;;
       v) lb_verb=1;;
       ?) lb_help;
@@ -170,6 +189,7 @@ function lb {
       fi
       if [[ $c -gt 1 ]] lb_exe $cmd 0
     fi
+
     if [[ $# -gt 0 ]]; then
       printf "\n"
     fi
