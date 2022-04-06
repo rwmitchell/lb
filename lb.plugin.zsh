@@ -35,7 +35,7 @@ function _lb_ident () {
 
   for cmd in $@; do
     printf "%b%s\n" $pad "$cmd"
-    strings $cmd | command egrep '^\$.*\$$|^@\(#\)' | sed 's/^/\t/'
+    strings $cmd | command egrep '^ *\$.*\$$|^@\(#\)' | sed 's/^/  /'
     pad="\n"
   done
 }
