@@ -154,7 +154,7 @@ function lb {
   local myopts="Cfilvh"
   while getopts $myopts opt; do
     case $opt in
-      C) cat=colorize_cat;;
+      C) cat=colorize_less;;  # colorize_cat uses default tab stops
       f) lb_file=1;;
       i) lb_ident=1;;
       l) lb_long=1;;
@@ -182,7 +182,7 @@ function lb {
         if (( lb_verb )); then
           printf "\n"
           __lb_yline 5
-          which $cmd | $cat --
+          which $cmd | $cat # --         # -- borked: lb -C -v gp
           printf "\n"
           __lb_rline 5
         fi
