@@ -140,6 +140,7 @@ function lb_help {
   printf "  -f: show 'file' output for executables\n"
   printf "  -i: show 'ident' information\n"
   printf "  -l: long ls output\n";
+  printf "  -r: reload function\n";
   printf "  -v: show script and function source\n"
   printf "\n";
 }
@@ -150,14 +151,16 @@ function lb {
   local lb_long=0;
   local lb_verb=0;
   local lb_ident=0;
+  local lb_rload=0;           # resource file containing function
 
-  local myopts="Cfilvh"
+  local myopts="Cfilrvh"
   while getopts $myopts opt; do
     case $opt in
       C) cat=colorize_less;;  # colorize_cat uses default tab stops
       f) lb_file=1;;
       i) lb_ident=1;;
       l) lb_long=1;;
+      r) lb_rload=1;;
       v) lb_verb=1;;
       ?) lb_help;
          ;;
@@ -186,6 +189,13 @@ function lb {
           printf "\n"
           __lb_rline 5
         fi
+
+        if (( lb_rload )); then
+          printf "Reload from: %s" $a[7]
+          [[ -e $a[7] ]] && source $a[7]
+          [[ $? ]] && printf " - \e[01;32mSuccess\e[m\n" || printf " - \e[01;31mFAIL]e[m\n"
+        fi
+
       fi
       if [[ $c -gt 1 ]] lb_exe $cmd 0
     fi
