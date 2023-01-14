@@ -135,14 +135,15 @@ function lb_exe {
 
 function lb_help {
   printf "%s -%s CMD [CMD]\n\n" $0 $myopts
-  printf "Find location of executable, function, or alias\n";
+  printf "Find location of executable, function, or alias\n"
   printf "  -C: colorize source\n"
   printf "  -f: show 'file' output for executables\n"
   printf "  -i: show 'ident' information\n"
-  printf "  -l: long ls output\n";
-  printf "  -r: reload function\n";
+  printf "  -l: long ls output\n"
+  printf "  -r: reload function\n"
+  printf "  -e: edit function\n"
   printf "  -v: show script and function source\n"
-  printf "\n";
+  printf "\n"
 }
 
 function lb {
@@ -152,8 +153,9 @@ function lb {
   local lb_verb=0;
   local lb_ident=0;
   local lb_rload=0;           # resource file containing function
+  local lb_edit=0;
 
-  local myopts="Cfilrvh"
+  local myopts="Cefilrvh"
   while getopts $myopts opt; do
     case $opt in
       C) cat=colorize_less;;  # colorize_cat uses default tab stops
@@ -161,6 +163,7 @@ function lb {
       i) lb_ident=1;;
       l) lb_long=1;;
       r) lb_rload=1;;
+      e) lb_edit=1;;
       v) lb_verb=1;;
       ?) lb_help;
          ;;
@@ -194,6 +197,11 @@ function lb {
           printf "Reload from: %s" $a[7]
           [[ -e $a[7] ]] && source $a[7]
           [[ $? ]] && printf " - \e[01;32mSuccess\e[m\n" || printf " - \e[01;31mFAIL]e[m\n"
+        fi
+
+        if (( lb_edit )); then
+          type zed 2>&1 > /dev/null || autoload zed
+          zed -f $cmd
         fi
 
       fi
