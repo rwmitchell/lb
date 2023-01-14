@@ -11,7 +11,7 @@ This is my first contribution of personal use code.
 
 ## Usage
 ### Output from 'lb -h'
-
+```
 lb_help -Cefilrvh CMD [CMD]
 
 Find location of executable, function, or alias
@@ -23,7 +23,7 @@ Find location of executable, function, or alias
   -r: reload function
   -e: edit function
   -v: show script and function source
-
+```
 ## Examples:
 ![lb-ls](img/lb-ls.png)
 
