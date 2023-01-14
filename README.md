@@ -12,12 +12,17 @@ This is my first contribution of personal use code.
 ## Usage
 ### Output from 'lb -h'
 
+lb_help -Cefilrvh CMD [CMD]
+
 Find location of executable, function, or alias
 
-	-C: colorize source
-	-f: show 'file' output for executables
-	-l: long ls output
-	-v: show script and function source
+  -C: colorize source
+  -f: show 'file' output for executables
+  -i: show 'ident' information
+  -l: long ls output
+  -r: reload function
+  -e: edit function
+  -v: show script and function source
 
 ## Examples:
 ![lb-ls](img/lb-ls.png)
