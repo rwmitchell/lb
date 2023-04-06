@@ -214,4 +214,6 @@ function lb {
   done
 }
 
-lb $*
+
+# This is only for an autoload function
+# lb $*
