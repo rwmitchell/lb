@@ -182,7 +182,8 @@ function lb {
     elif [[ $#a -eq 3 ]]; then           # executable
       lb_exe $cmd 1
     else                                 # alias or shell function
-      printf "%s\n" $x | lb_ccol
+      type -a $cmd | lb_ccol
+#     printf "%s\n" $x | lb_ccol
 
       if [[ $a[4] == "shell" ]]; then
         if (( lb_verb )); then
@@ -205,7 +206,9 @@ function lb {
         fi
 
       fi
-      if [[ $c -gt 1 ]] lb_exe $cmd 0
+      # 2023-05-10: This breaks with multiply defined aliases/functions
+      # why is it needed?
+#     if [[ $c -gt 1 ]] lb_exe $cmd 0
     fi
 
     if [[ $# -gt 0 ]]; then
