@@ -133,6 +133,12 @@ function lb_exe {
   fi
 }
 
+function lb_usage() {
+  for (( i=1; i<=${#myopts}; i++ )); do
+    printf "-%c\n" ${myopts[i]}
+  done
+}
+
 function lb_help {
   printf "%s -%s CMD [CMD]\n\n" $0 $myopts
   printf "Find location of executable, function, or alias\n"
@@ -155,7 +161,7 @@ function lb {
   local lb_rload=0;           # resource file containing function
   local lb_edit=0;
 
-  local myopts="Cefilrvh"
+  local myopts="Cefilruvh"
   while getopts $myopts opt; do
     case $opt in
       C) cat=colorize_less;;  # colorize_cat uses default tab stops
@@ -165,6 +171,8 @@ function lb {
       r) lb_rload=1;;
       e) lb_edit=1;;
       v) lb_verb=1;;
+      u) lb_usage;
+         ;;
       ?) lb_help;
          ;;
     esac
