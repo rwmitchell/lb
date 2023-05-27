@@ -3,7 +3,6 @@
 # 2022-03-16 change from autoload to plugin
 # printf "Initializing lb\n"
 
-compdef lb=which
 
 if [[ $TERM_PROGRAM == *iTerm* ]]; then
 
@@ -161,10 +160,11 @@ function lb {
   local lb_rload=0;           # resource file containing function
   local lb_edit=0;
 
-  local myopts="Cefilruvh"
+  local myopts="CefilruABCFvh"
   while getopts $myopts opt; do
     case $opt in
-      C) cat=colorize_less;;  # colorize_cat uses default tab stops
+#     C) cat=colorize_less;;  # colorize_cat uses default tab stops
+      A|B|C|F);   ;;          # ignore, used by completion expansion
       f) lb_file=1;;
       i) lb_ident=1;;
       l) lb_long=1;;
@@ -225,6 +225,43 @@ function lb {
   done
 }
 
+_lbparam() {
+  lb -u | while read option; do
+    _wanted Foo expl Option compadd -- "$option"
+  done
+}
+
+_lbcmds () {
+
+  f=0
+  for w in ${words[@]}; do
+    case $w in
+      (-C|-B|-F|-A) f=1; ;;
+    esac
+  done
+
+  [[ $f -eq 0 ]] && words=(-A -B -C -F)
+
+  for w in ${words[@]}; do
+    case $w in
+      (-C) _wanted Boz expl Option _path_commands;       ;;
+      (-B) _wanted Boz expl Option compadd -k builtins;  ;;
+      (-F) _wanted Boz expl Option compadd -k functions; ;;
+      (-A) _wanted Boz expl Option compadd -k aliases;   ;;
+    esac
+  done
+}
+
+
+# _arguments: the '*' allows the pattern to be repeated on the cmdline
+
+function _lb () {
+  _alternative \
+    "*:Foo      :_lbparam" \
+    "*:Commands :_lbcmds"  \
+}
+
+compdef _lb lb
 
 # This is only for an autoload function
 # lb $*
