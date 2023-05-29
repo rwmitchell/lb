@@ -164,7 +164,7 @@ function lb {
   while getopts $myopts opt; do
     case $opt in
 #     C) cat=colorize_less;;  # colorize_cat uses default tab stops
-      A|B|C|F);   ;;          # ignore, used by completion expansion
+      A|B|C|F|G);   ;;          # ignore, used by completion expansion
       f) lb_file=1;;
       i) lb_ident=1;;
       l) lb_long=1;;
@@ -236,7 +236,7 @@ _lbcmds () {
   f=0
   for w in ${words[@]}; do
     case $w in
-      (-C|-B|-F|-A) f=1; ;;
+      (-C|-B|-F|-G|-A) f=1; ;;
     esac
   done
 
@@ -247,6 +247,9 @@ _lbcmds () {
       (-C) _wanted Boz expl Option _path_commands;       ;;
       (-B) _wanted Boz expl Option compadd -k builtins;  ;;
       (-F) _wanted Boz expl Option compadd -k functions; ;;
+      (-G)
+          zstyle ':completion::(^approximate*):*:functions' ignored-patterns '_*'
+          _wanted Boz expl Option _functions;           ;;
       (-A) _wanted Boz expl Option compadd -k aliases;   ;;
     esac
   done
