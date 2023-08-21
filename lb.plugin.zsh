@@ -130,6 +130,15 @@ function lb_exe {
     _lb_ident $(\type -a $1 | egrep -v "alias|shell" | sed 's/^.* \([^ ][^ ]\)/\1/g') | lb_hl $a_cmd
     __lb_yline 2
   fi
+
+  if (( lb_comp  )); then
+    __lb_yline 2
+    printf "%s Cmd Completion: %s\n" $1 $_comps[$1]
+    if (( lb_verb )); then
+      lb -v $_comps[$1]
+    fi
+    __lb_yline 2
+  fi
 }
 
 function lb_usage() {
@@ -142,6 +151,7 @@ function lb_help {
   printf "%s -%s CMD [CMD]\n\n" $0 $myopts
   printf "Find location of executable, function, or alias\n"
   printf "  -C: colorize source\n"
+  printf "  -c: show assigned completion command\n"
   printf "  -f: show 'file' output for executables\n"
   printf "  -i: show 'ident' information\n"
   printf "  -l: long ls output\n"
@@ -153,6 +163,7 @@ function lb_help {
 
 function lb {
   local cat=cat;
+  local lb_comp=0;            # show completion comamnd
   local lb_file=0;
   local lb_long=0;
   local lb_verb=0;
@@ -160,11 +171,12 @@ function lb {
   local lb_rload=0;           # resource file containing function
   local lb_edit=0;
 
-  local myopts="CefilruABCFvh"
+  local myopts="cefilruABCFvh"
   while getopts $myopts opt; do
     case $opt in
 #     C) cat=colorize_less;;  # colorize_cat uses default tab stops
       A|B|C|F|G);   ;;          # ignore, used by completion expansion
+      c) lb_comp=1;;
       f) lb_file=1;;
       i) lb_ident=1;;
       l) lb_long=1;;
@@ -214,6 +226,16 @@ function lb {
         fi
 
       fi
+
+      if (( lb_comp  )); then
+        __lb_yline 2
+        printf "%s Completion: %s\n" $cmd $_comps[$cmd]
+        if (( lb_verb )); then
+          lb -v $_comps[$cmd]
+        fi
+        __lb_yline 2
+      fi
+
       # 2023-05-10: This breaks with multiply defined aliases/functions
       # why is it needed?
 #     if [[ $c -gt 1 ]] lb_exe $cmd 0
