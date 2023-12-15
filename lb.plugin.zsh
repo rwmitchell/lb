@@ -141,6 +141,13 @@ function lb_exe {
   fi
 }
 
+function lb_alias {
+  local oRT=$REPORTTIME
+  REPORTTIME=-1
+  zsh -ixc : 2>&1 | grep "\<$1\>=" | head -1
+  REPORTTIME=$oRT
+}
+
 function lb_usage() {
   for (( i=1; i<=${#myopts}; i++ )); do
     printf "-%c\n" ${myopts[i]}
@@ -157,6 +164,7 @@ function lb_help {
   printf "  -l: long ls output\n"
   printf "  -r: reload function\n"
   printf "  -e: edit function\n"
+  printf "  -a: show where alias is defined\n"
   printf "  -v: show script and function source\n"
   printf "\n"
 }
@@ -170,19 +178,21 @@ function lb {
   local lb_ident=0;
   local lb_rload=0;           # resource file containing function
   local lb_edit=0;
+  local lb_find=0;
 
-  local myopts="cefilruABCFvh"
+  local myopts="acefilruABCFvh"
   while getopts $myopts opt; do
     case $opt in
-#     C) cat=colorize_less;;  # colorize_cat uses default tab stops
-      A|B|C|F|G);   ;;          # ignore, used by completion expansion
-      c) lb_comp=1;;
-      f) lb_file=1;;
-      i) lb_ident=1;;
-      l) lb_long=1;;
-      r) lb_rload=1;;
-      e) lb_edit=1;;
-      v) lb_verb=1;;
+#     C) cat=colorize_less; ;;  # colorize_cat uses default tab stops
+      A|B|C|F|G);    ;;         # ignore, used by completion expansion
+      c) lb_comp=1;  ;;
+      f) lb_file=1;  ;;
+      i) lb_ident=1; ;;
+      l) lb_long=1;  ;;
+      r) lb_rload=1; ;;
+      e) lb_edit=1;  ;;
+      a) lb_find=1;  ;;         # find alias
+      v) lb_verb=1;  ;;
       u) lb_usage;
          ;;
       ?) lb_help;
@@ -205,7 +215,7 @@ function lb {
       type -a $cmd | lb_ccol
 #     printf "%s\n" $x | lb_ccol
 
-      if [[ $a[4] == "shell" ]]; then
+      if [[ $a[4] == "shell" ]]; then    # shell
         if (( lb_verb )); then
           printf "\n"
           __lb_yline 5
@@ -224,7 +234,8 @@ function lb {
           type zed 2>&1 > /dev/null || autoload zed
           zed -f $cmd
         fi
-
+      else                               # alias
+        [[ $lb_find -eq 1 ]] && printf "\n" && lb_alias $cmd
       fi
 
       if (( lb_comp  )); then
