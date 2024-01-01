@@ -4,30 +4,30 @@
 # printf "Initializing lb\n"
 
 
-if [[ $TERM_PROGRAM == *iTerm* ]]; then
+# if [[ $TERM_PROGRAM == *iTerm* ]]; then
 
   # Argument to line functions specifies line thickness
-  function __lb_yline() {
+  function __lb_iyline() {
     [ $1 ] && ht=$1 || ht=1;
     printf "\e]1337;File=name=eWVsbG93;size=113;inline=1;width=100%%;height=%dpx;preserveAspectRatio=no:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX//wCKxvRFAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==\a\n" "$ht"
   }
 
-  function __lb_rline() {
+  function __lb_irline() {
     [ $1 ] && ht=$1 || ht=1;
     printf "\e]1337;File=name=cmVk;size=113;inline=1;width=100%%;height=%dpx;preserveAspectRatio=no:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/AAAZ4gk3AAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==\a\n" "$ht"
     }
 
-  function __lb_cline {
+  function __lb_icline {
     [ $1 ] && ht=$1 || ht=1;
     printf "\e]1337;File=name=Y3lhbg==;size=113;inline=1;width=100%%;height=%dpx;preserveAspectRatio=no:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUA//8ZXC8lAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==\a\n" "$ht"
   }
 
-else
+# else
   # Argument is ignored as a repeating number is ugly
-  function __lb_yline () { local S='-'; printf -v _hr "[1;33m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
-  function __lb_rline () { local S='-'; printf -v _hr "[1;31m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
-  function __lb_cline () { local S='-'; printf -v _hr "[1;36m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
-fi
+  function __lb_tyline () { local S='-'; printf -v _hr "[1;33m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
+  function __lb_trline () { local S='-'; printf -v _hr "[1;31m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
+  function __lb_tcline () { local S='-'; printf -v _hr "[1;36m%*s[m" $(tput cols) && echo ${_hr// /${S--}} }
+# fi
 
 function _lb_ident () {
   local cmd pad
@@ -119,25 +119,25 @@ function lb_exe {
   if (( lb_verb )); then
     echo $txt | grep -q text;
     if ! (( $? )); then
-      __lb_cline 5
+      $__lb_cline 5
       $cat $a_cmd
-      __lb_cline 5
+      $__lb_cline 5
     fi
   fi
 
   if (( lb_ident )); then
-    __lb_yline 2
+    $__lb_yline 2
     _lb_ident $(\type -a $1 | egrep -v "alias|shell" | sed 's/^.* \([^ ][^ ]\)/\1/g') | lb_hl $a_cmd
-    __lb_yline 2
+    $__lb_yline 2
   fi
 
   if (( lb_comp  )); then
-    __lb_yline 2
+    $__lb_yline 2
     printf "%s Cmd Completion: %s\n" $1 $_comps[$1]
     if (( lb_verb )); then
       lb -v $_comps[$1]
     fi
-    __lb_yline 2
+    $__lb_yline 2
   fi
 }
 
@@ -165,6 +165,7 @@ function lb_help {
   printf "  -r: reload function\n"
   printf "  -e: edit function\n"
   printf "  -a: show where alias is defined\n"
+  printf "  -t: force text for line separators\n"
   printf "  -v: show script and function source\n"
   printf "\n"
 }
@@ -180,7 +181,18 @@ function lb {
   local lb_edit=0;
   local lb_find=0;
 
-  local myopts="acefilruABCFvh"
+  if [[ $TERM_PROGRAM == *iTerm* ]]; then
+    __lb_yline=__lb_iyline
+    __lb_rline=__lb_irline
+    __lb_cline=__lb_icline
+  else
+    __lb_yline=__lb_tyline
+    __lb_rline=__lb_trline
+    __lb_cline=__lb_tcline
+  fi
+
+  local myopts="acefilrtj:w
+  uABCFvh"
   while getopts $myopts opt; do
     case $opt in
 #     C) cat=colorize_less; ;;  # colorize_cat uses default tab stops
@@ -193,6 +205,12 @@ function lb {
       e) lb_edit=1;  ;;
       a) lb_find=1;  ;;         # find alias
       v) lb_verb=1;  ;;
+      t) __lb_yline=__lb_tyline;
+         __lb_rline=__lb_trline;
+         __lb_cline=__lb_tcline;
+         printf "Texting!\n";
+         ;;
+
       u) lb_usage;
          ;;
       ?) lb_help;
@@ -218,10 +236,10 @@ function lb {
       if [[ $a[4] == "shell" ]]; then    # shell
         if (( lb_verb )); then
           printf "\n"
-          __lb_yline 5
+          $__lb_yline 5
           which $cmd | $cat # --         # -- borked: lb -C -v gp
           printf "\n"
-          __lb_rline 5
+          $__lb_rline 5
         fi
 
         if (( lb_rload )); then
@@ -239,12 +257,12 @@ function lb {
       fi
 
       if (( lb_comp  )); then
-        __lb_yline 2
+        $__lb_yline 2
         printf "%s Completion: %s\n" $cmd $_comps[$cmd]
         if (( lb_verb )); then
           lb -v $_comps[$cmd]
         fi
-        __lb_yline 2
+        $__lb_yline 2
       fi
 
       # 2023-05-10: This breaks with multiply defined aliases/functions
