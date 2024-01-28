@@ -139,6 +139,11 @@ function lb_exe {
     fi
     $__lb_yline 2
   fi
+
+  if (( lb_path )); then
+    printf "Removing %s from path\n" $1
+    eval $(pathtool -z -p $PATH $1)
+  fi
 }
 
 function lb_alias {
@@ -165,6 +170,7 @@ function lb_help {
   printf "  -r: reload function\n"
   printf "  -e: edit function\n"
   printf "  -a: show where alias is defined\n"
+  printf "  -p: remove path containing program\n"
   printf "  -t: force text for line separators\n"
   printf "  -v: show script and function source\n"
   printf "\n"
@@ -172,7 +178,7 @@ function lb_help {
 
 function lb {
   local cat=cat;
-  local lb_comp=0;            # show completion comamnd
+  local lb_comp=0;            # show completion command
   local lb_file=0;
   local lb_long=0;
   local lb_verb=0;
@@ -180,6 +186,7 @@ function lb {
   local lb_rload=0;           # resource file containing function
   local lb_edit=0;
   local lb_find=0;
+  local lb_path=0;
 
   if [[ $TERM_PROGRAM == *iTerm* ]]; then
     __lb_yline=__lb_iyline
@@ -191,7 +198,7 @@ function lb {
     __lb_cline=__lb_tcline
   fi
 
-  local myopts="acefilrtj:w
+  local myopts="acefilprtw
   uABCFvh"
   while getopts $myopts opt; do
     case $opt in
@@ -204,6 +211,7 @@ function lb {
       r) lb_rload=1; ;;
       e) lb_edit=1;  ;;
       a) lb_find=1;  ;;         # find alias
+      p) lb_path=1;  ;;         # delete path to program
       v) lb_verb=1;  ;;
       t) __lb_yline=__lb_tyline;
          __lb_rline=__lb_trline;
