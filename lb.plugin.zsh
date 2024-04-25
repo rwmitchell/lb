@@ -47,7 +47,7 @@ function lb_ls {
   type els > /dev/null
   [[ $? == 1 ]] && /bin/ls $*    || els +T^NY-M-DT +G~At~smn $*      # ll
 
-  if (( lb_diff )) && printf "\n" && mdiff $*
+  if (( lb_diff )) && printf "\n" && mdiff -W $*
 }
 
 function lb_hl {                   # hl -I -g $cmd
