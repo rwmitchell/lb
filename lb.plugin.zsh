@@ -46,6 +46,8 @@ function lb__l {
 function lb_ls {
   type els > /dev/null
   [[ $? == 1 ]] && /bin/ls $*    || els +T^NY-M-DT +G~At~smn $*      # ll
+
+  if (( lb_diff )) && printf "\n" && mdiff $*
 }
 
 function lb_hl {                   # hl -I -g $cmd
@@ -179,6 +181,7 @@ function lb_help {
 function lb {
   local cat=cat;
   local lb_comp=0;            # show completion command
+  local lb_diff=0;            # diff multiple matches
   local lb_file=0;
   local lb_long=0;
   local lb_verb=0;
@@ -198,13 +201,13 @@ function lb {
     __lb_cline=__lb_tcline
   fi
 
-  local myopts="acefilprtw
-  uABCFvh"
+  local myopts="acdefilprtuABCFvh"
   while getopts $myopts opt; do
     case $opt in
 #     C) cat=colorize_less; ;;  # colorize_cat uses default tab stops
       A|B|C|F|G);    ;;         # ignore, used by completion expansion
       c) lb_comp=1;  ;;
+      d) lb_diff=1;  ;;
       f) lb_file=1;  ;;
       i) lb_ident=1; ;;
       l) lb_long=1;  ;;
@@ -282,6 +285,7 @@ function lb {
       printf "\n"
     fi
   done
+
 }
 
 _lbparam() {
