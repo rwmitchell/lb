@@ -174,6 +174,7 @@ function lb_help {
   printf "  -a: show where alias is defined\n"
   printf "  -p: remove path containing program\n"
   printf "  -t: force text for line separators\n"
+  printf "  -d: diff multiple locations of same item\n"
   printf "  -v: show script and function source\n"
   printf "\n"
 }
