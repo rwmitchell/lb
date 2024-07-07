@@ -40,14 +40,31 @@ function _lb_ident () {
 }
 
 function lb__l {
+  # NOTE: changing order here does change ls order, still need -rt
+  local -a ta=($@)
+
   type els > /dev/null
-  [[ $? == 1 ]] && /bin/ls -l $* || els +T^NY-M-DT +G~Atp~ugsmnL $*  # l
+  [[ $? == 1 ]] && /bin/ls -lrt $ta || els +T^NY-M-DT +G~Atp~ugsmnL -rt $ta  # l
+
+  if (( lb_diff )) && {
+    ta=( $( /bin/ls -rt $ta ) )
+    printf "\n"
+    mdiff -W $ta
+  }
 }
 function lb_ls {
-  type els > /dev/null
-  [[ $? == 1 ]] && /bin/ls $*    || els +T^NY-M-DT +G~At~smn $*      # ll
 
-  if (( lb_diff )) && printf "\n" && mdiff -W $*
+  # NOTE: changing order here does change ls order, still need -rt
+  local -a ta=($@)
+
+  type els > /dev/null
+  [[ $? == 0 ]] && /bin/ls -rt $ta    || els +T^NY-M-DT +G~At~smn -rt $ta      # ll
+
+  if (( lb_diff )) && {
+    ta=( $( /bin/ls -rt $ta ) )
+    printf "\n"
+    mdiff -W $ta
+  }
 }
 
 function lb_hl {                   # hl -I -g $cmd
