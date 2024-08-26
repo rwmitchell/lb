@@ -125,7 +125,7 @@ function lb_exe {
 
   setopt localoptions no_nomatch
   local -a o_cmd=()
-  [[ -e $HOME/Build ]] && o_cmd=( $(command ls $HOME/Build/**/$cmd:t 2>/dev/null) )     # find all occurances under Build
+  [[ -e $HOME/Build ]] && o_cmd=( $(command ls $HOME/Build/**/$cmd:t(.) 2>/dev/null) )     # find all occurances under Build
 
   a_cmd=$(type $1 | egrep -v "alias |shell " | sed 's/^.* \([^ ][^ ]\)/\1/g')
   [[ $a_cmd == "" ]] && a_cmd=$cmd && printf "\n"
