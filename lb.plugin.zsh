@@ -40,8 +40,8 @@ function _lb_ident () {
 }
 
 function lb__l {
-  # NOTE: changing order here does change ls order, still need -rt
-  local -a ta=($@)
+  # NOTE: changing order here does not change ls order, still need -rt
+  local -a ta=( $(printf "%s\n" $@ | sort -u ) )
 
   type els > /dev/null
   [[ $? == 1 ]] && /bin/ls -lrt $ta || els +T^NY-M-DT +G~Atp~ugsmnL -rt $ta  # l
@@ -54,8 +54,8 @@ function lb__l {
 }
 function lb_ls {
 
-  # NOTE: changing order here does change ls order, still need -rt
-  local -a ta=($@)
+  # NOTE: changing order here does not change ls order, still need -rt
+  local -a ta=( $(printf "%s\n" $@ | sort -u ) )
 
   type els > /dev/null
   [[ $? == 0 ]] && /bin/ls -rt $ta    || els +T^NY-M-DT +G~At~smn -rt $ta      # ll
@@ -123,6 +123,10 @@ function lb_exe {
   cmd=$( type $1 )
   flg=$2
 
+  setopt localoptions no_nomatch
+  local -a o_cmd=()
+  [[ -e $HOME/Build ]] && o_cmd=( $(command ls $HOME/Build/**/$cmd:t 2>/dev/null) )     # find all occurances under Build
+
   a_cmd=$(type $1 | egrep -v "alias |shell " | sed 's/^.* \([^ ][^ ]\)/\1/g')
   [[ $a_cmd == "" ]] && a_cmd=$cmd && printf "\n"
 
@@ -133,7 +137,7 @@ function lb_exe {
     fi
   fi
 
-  $l_cmd $(\type -a $1 | egrep -v "alias|shell" | sed 's/^.* \([^ ][^ ]\)/\1/g') | lb_hl $a_cmd
+  $l_cmd $o_cmd $(\type -a $1 | egrep -v "alias|shell" | sed 's/^.* \([^ ][^ ]\)/\1/g') | lb_hl $a_cmd
 
   if (( lb_verb )); then
     echo $txt | grep -q text;
