@@ -176,6 +176,19 @@ function lb_alias {
   REPORTTIME=$oRT
 }
 
+function lb_global {
+  local oRT=$REPORTTIME
+  REPORTTIME=-1
+
+  local ga
+  foreach ga in ${(ok)galiases[@]}; do
+    lb -lv "$ga"
+  done | align -F" is a " " is "
+
+  REPORTTIME=$oRT
+
+}
+
 function lb_usage() {
   for (( i=1; i<=${#myopts}; i++ )); do
     printf "-%c\n" ${myopts[i]}
@@ -188,6 +201,7 @@ function lb_help {
   printf "  -C: colorize source\n"
   printf "  -c: show assigned completion command\n"
   printf "  -f: show 'file' output for executables\n"
+  printf "  -g: show all global aliases\n"
   printf "  -i: show 'ident' information\n"
   printf "  -l: long ls output\n"
   printf "  -r: reload function\n"
@@ -212,6 +226,7 @@ function lb {
   local lb_edit=0;
   local lb_find=0;
   local lb_path=0;
+  local lb_galias=0;
 
   if [[ $TERM_PROGRAM == *iTerm* ]]; then
     __lb_yline=__lb_iyline
@@ -223,7 +238,7 @@ function lb {
     __lb_cline=__lb_tcline
   fi
 
-  local myopts="acdefilprtuABCFvh"
+  local myopts="acdefgilprtuABCFvh"
   while getopts $myopts opt; do
     case $opt in
 #     C) cat=colorize_less; ;;  # colorize_cat uses default tab stops
@@ -231,6 +246,7 @@ function lb {
       c) lb_comp=1;  ;;
       d) lb_diff=1;  ;;
       f) lb_file=1;  ;;
+      g) lb_galias=1;;;
       i) lb_ident=1; ;;
       l) lb_long=1;  ;;
       r) lb_rload=1; ;;
@@ -251,6 +267,8 @@ function lb {
     esac
   done
   shift $((OPTIND -1))
+
+  [[ $lb_galias == 1 ]] && lb_global && return 0
 
   while test "$#" -gt 0; do
     cmd="$1"; shift;
