@@ -1,0 +1,15 @@
+#compdef lb
+
+typeset -a opt_args
+local -a lb_param
+
+_lb_param() {
+  lb -u | while read lb_param; do
+    _wanted 'lb_param' expl 'lb_param' compadd -- "$lb_param"
+  done
+}
+
+function _lb() {
+  _arguments :lb_param:_lb_param \
+    ":commands:_path_commands"
+}
