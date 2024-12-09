@@ -198,7 +198,8 @@ function lb_usage() {
 function lb_help {
   printf "%s -%s CMD [CMD]\n\n" $0 $myopts
   printf "Find location of executable, function, or alias\n"
-  printf "  -C: colorize source\n"
+  printf "  -C: colorize source using colorize_cat\n"
+  printf "  -L: colorize source using colorize_less\n"
   printf "  -c: show assigned completion command\n"
   printf "  -f: show 'file' output for executables\n"
   printf "  -g: show all global aliases\n"
@@ -238,10 +239,11 @@ function lb {
     __lb_cline=__lb_tcline
   fi
 
-  local myopts="acdefgilprtuABCFvh"
+  local myopts="acdefgilprtuABCFLvh"
   while getopts $myopts opt; do
     case $opt in
-#     C) cat=colorize_less; ;;  # colorize_cat uses default tab stops
+      C) cat=colorize_cat ; ;;
+      L) cat=colorize_less; ;;  # colorize_cat uses default tab stops
       A|B|C|F|G);    ;;         # ignore, used by completion expansion
       c) lb_comp=1;  ;;
       d) lb_diff=1;  ;;
