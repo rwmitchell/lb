@@ -279,7 +279,7 @@ function lb {
     c=$( type -a $cmd | wc -l )
 
     if [[ $a[2] == "not" ]]; then
-      printf "%s\n" $x
+      printf "\e[1;38;5;160m%s\e[m\n" $x
     elif [[ $#a -eq 3 ]]; then           # executable
       lb_exe $cmd 1
     else                                 # alias or shell function
