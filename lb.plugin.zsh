@@ -67,6 +67,14 @@ function lb_ls {
   }
 }
 
+function lb_ll {
+  # used with -P to show files in same path as exe
+  # NOTE: changing order here does not change ls order, still need -rt
+  local -a ta=( $(printf "%s\n" $@ | sort -u ) )
+
+  [[ ! ${+commands[els]} ]] && /bin/ls $ta    || els +T^NY-M-DT +G~Aq~smn $ta | mc     # ll
+}
+
 function lb_hl {                   # hl -I -g $cmd
   while IFS= read -r; do
     GREP_COLOR="07;32" egrep --color=always "$1|\$" <<< "$REPLY"
@@ -135,6 +143,13 @@ function lb_exe {
       txt=$( file $a_cmd )
       printf "%s\n" $txt | lb_prism
     fi
+
+    if (( lb_spath )); then
+      # XYZZY
+      printf "Checking: %s\n" ${a_cmd:h}
+      [[ ${a_cmd:h} != $HOME/Build/bin && ${a_cmd:h} != $HOME/bin ]] && lb_ll ${a_cmd:h}
+    fi
+
   fi
 
   $l_cmd $o_cmd $(\type -a $1 | egrep -v "alias|shell" | sed 's/^.* \([^ ][^ ]\)/\1/g') | lb_hl $a_cmd
@@ -163,10 +178,11 @@ function lb_exe {
     $__lb_yline 2
   fi
 
-  if (( lb_path )); then
+  if (( lb_dpath )); then
     printf "Removing %s from path\n" $1
     eval $(pathtool -z -p $PATH $1)
   fi
+
 }
 
 function lb_alias {
@@ -209,10 +225,12 @@ function lb_help {
   printf "  -e: edit function\n"
   printf "  -a: show where alias is defined\n"
   printf "  -p: remove path containing program\n"
+  printf "  -P: show files in path\n"
   printf "  -t: force text for line separators\n"
   printf "  -d: diff multiple locations of same item\n"
   printf "  -v: show script and function source\n"
   printf "\n"
+  printf "See also: findcmd\n\n"
 }
 
 function lb {
@@ -226,7 +244,8 @@ function lb {
   local lb_rload=0;           # resource file containing function
   local lb_edit=0;
   local lb_find=0;
-  local lb_path=0;
+  local lb_dpath=0;           # delete path entry
+  local lb_spath=0;           # show other files in path if not ~/bin/ or ~/Build/bin
   local lb_galias=0;
 
   if [[ $TERM_PROGRAM == *iTerm* ]]; then
@@ -239,7 +258,7 @@ function lb {
     __lb_cline=__lb_tcline
   fi
 
-  local myopts="acdefgilprtuABCFLvh"
+  local myopts="acdefgilpPrtuABCFLvh"
   while getopts $myopts opt; do
     case $opt in
       C) cat=colorize_cat ; ;;
@@ -254,7 +273,8 @@ function lb {
       r) lb_rload=1; ;;
       e) lb_edit=1;  ;;
       a) lb_find=1;  ;;         # find alias
-      p) lb_path=1;  ;;         # delete path to program
+      p) lb_dpath=1; ;;         # delete path to program
+      P) lb_spath=1; ;;         # show files in path
       v) lb_verb=1;  ;;
       t) __lb_yline=__lb_tyline;
          __lb_rline=__lb_trline;
